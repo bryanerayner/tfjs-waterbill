@@ -105,7 +105,7 @@ class PolicyNetwork {
 }
 
 // The IndexedDB path where the model of the policy network will be saved.
-const MODEL_SAVE_PATH_ = 'indexeddb://mountain-car-v0';
+const MODEL_SAVE_PATH_ = 'indexeddb://water-bill-v0';
 
 /**
  * A subclass of PolicyNetwork that supports saving and loading.

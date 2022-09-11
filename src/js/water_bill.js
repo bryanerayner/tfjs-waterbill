@@ -32,7 +32,7 @@ During each update step, brackets can be logged in human-readable format.
 
 import * as tf from '@tensorflow/tfjs';
 
-import { getNewSimulatedCity } from './sim_city';
+import { getNewSimulatedCity, getMonthlyHistogram } from './sim_city';
 
 
 /*
@@ -109,6 +109,8 @@ export class WaterBill {
         this.simCityData = getNewSimulatedCity();
         localStorage.setItem('SIM_CITY', JSON.stringify(this.simCityData));
     }
+
+    this.monthlyHistogram = getMonthlyHistogram(this.simCityData);
   }
 
 
@@ -116,12 +118,17 @@ export class WaterBill {
    * Get current state as a tf.Tensor of shape [1, 2].
    */
   getStateTensor() {
-    return tf.tensor2d([[this.position, this.velocity]]);
+    
+
+    return tf.tensor2d([
+      ...this.monthlyHistogram,
+      ...this.priceSettings
+    ]);
   }
 
   /**
    * Update the mountain car system using an action.
-   * @param {number} action Only the sign of `action` matters.
+   * @param {number[]} action Only the sign of `action` matters.
    *   Action is an integer, in [-1, 0, 1]
    *   A value of 1 leads to a rightward force of a fixed magnitude.
    *   A value of -1 leads to a leftward force of the same fixed magnitude.

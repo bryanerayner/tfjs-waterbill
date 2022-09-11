@@ -66,3 +66,111 @@ export function getNewSimulatedCity() {
         simHistoricDepartmentCostData
     };
 }
+
+
+export function getMonthlyHistogram({
+    simMonthlyWaterUsageData,
+    simHistoricDepartmentCostData
+}) {
+
+    const meterTypeCounts = new Map();
+
+    const categoryCounts = new Map();
+
+    const categoryData = new Map();
+
+    simMonthlyWaterUsageData.forEach(dataset => {
+        const category = dataset[0];
+        const meterType = dataset[1];
+        const mtC = meterTypeCounts.get(meterType) || 0;
+        meterTypeCounts.set(meterType, mtc + 1);
+
+        const cC = categoryCounts.get(category) || 0;
+        categoryCounts.set(category, cc + 1);
+
+        if (! categoryData.has(category)) {
+            categoryData.set(category, [
+                new Set(),
+                new Set(),
+                new Set(),
+
+                new Set(),
+                new Set(),
+                new Set(),
+
+                new Set(),
+                new Set(),
+                new Set(),
+
+                new Set(),
+                new Set(),
+                new Set()
+            ]);
+        }
+
+        const sums = categoryData.get(category);
+        for(let i =0, ii = 12; i<ii;i+=1) {
+            const usage = dataset[i+2];
+            sums[i].add(usage || 0);
+        }
+    });
+
+    // We will output a 2d array with the following outline:
+    // [METER_TYPE_ENTRY, meterType, count],
+    // [CATEGORY_CUSTOMER_COUNT, customerCount],
+    // [CATEGORY_DATASET, monthlyUseCount],
+    // [HISTORICAL_USAGE, monthlyData],
+
+    const output = [];
+
+    const METER_TYPE_ENTRY = 1;
+    const CATEGORY_DATASET = 2;
+    const CATEGORY_CUSTOMER_COUNT = 3;
+    const HISTORICAL_USAGE = 4;
+
+    meterTypeCounts.forEach((count, meterType) => {
+        output.push([METER_TYPE_ENTRY, meterType, count]);
+    });
+    categoryCounts.forEach((count, category) => {
+        output.push([CATEGORY_CUSTOMER_COUNT, category, count]);
+    });
+
+    var s = new Set();
+
+    categoryData.forEach((montlyUseData, category) => {
+        const sums = [];
+        for(let i = 0, ii = montlyUseData.length; i< ii; i+=1) {
+            const d = sums[i];
+            let total = 0;
+            d.forEach(v => total +=v);
+            const mean = total / d.size;
+            sums.push(mean);
+        }
+
+        output.push([CATEGORY_DATASET, ...sums]);
+    });
+
+    simHistoricDepartmentCostData.forEach(historicalCost => {
+        output.push([HISTORICAL_USAGE, ...historicalCost]);
+    });
+
+
+    return normalize2dArrayLength(output);
+}
+
+export function normalize2dArrayLength(output) {
+
+    let maxSize = 0;
+    for (let o of output) {
+        if (o.length > maxSize) {
+            maxSize = o.length;
+        }
+    }
+    for (let o of output) {
+        while ( o.length < maxSize) {
+            o.push(0);
+        }
+    }
+
+    return output;
+}

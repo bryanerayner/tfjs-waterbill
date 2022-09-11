@@ -11,15 +11,15 @@ const LAMBDA = 0.01;
 
 export class Orchestrator {
     /**
-     * @param {MountainCar} mountainCar
+     * @param {WaterBill} WaterBill
      * @param {Model} model
      * @param {Memory} memory
      * @param {number} discountRate
      * @param {number} maxStepsPerGame
      */
-    constructor(mountainCar, model, memory, discountRate, maxStepsPerGame) {
+    constructor(waterBill, model, memory, discountRate, maxStepsPerGame) {
         // The main components of the environment
-        this.mountainCar = mountainCar;
+        this.waterBill = waterBill;
         this.model = model;
         this.memory = memory;
 
@@ -56,25 +56,23 @@ export class Orchestrator {
     }
 
     async run() {
-        this.mountainCar.setRandomState();
-        let state = this.mountainCar.getStateTensor();
+        this.waterBill.setRandomState();
+        let state = this.waterBill.getStateTensor();
         let totalReward = 0;
         let maxPosition = -100;
         let step = 0;
         while (step < this.maxStepsPerGame) {
 
             // Rendering in the browser
-            await maybeRenderDuringTraining(this.mountainCar);
+            await maybeRenderDuringTraining(this.waterBill);
 
             // Interaction with the environment
             const action = this.model.chooseAction(state, this.eps);
-            const done = this.mountainCar.update(action);
-            const reward = this.computeReward(this.mountainCar.position);
+            const done = this.waterBill.update(action);
+            const reward = this.computeReward(this.waterBill.position);
 
-            let nextState = this.mountainCar.getStateTensor();
+            let nextState = this.waterBill.getStateTensor();
 
-            // Keep the car on max position if reached
-            if (this.mountainCar.position > maxPosition) maxPosition = this.mountainCar.position;
             if (done) nextState = null;
 
             this.memory.addSample([state, action, reward, nextState]);
