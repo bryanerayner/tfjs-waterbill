@@ -1,4 +1,4 @@
-import { MountainCar } from './mountain_car';
+import { WaterBill } from './water_bill';
 import { Model } from './model';
 import { Memory } from './memory';
 import { maybeRenderDuringTraining, setUpUI } from './ui';
